@@ -10,5 +10,6 @@ public class AppointmentRequestDTO {
     private Integer patientId;
     private Integer doctorId;
     private String appointmentType;
+    private String disease;
     private LocalDateTime startDate;
 }

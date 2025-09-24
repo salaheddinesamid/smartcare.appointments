@@ -21,6 +21,10 @@ public class Appointment {
     @Column(name = "doctor_id")
     private Integer doctorId;
 
+    @Column(name = "disease")
+    @Enumerated(EnumType.STRING)
+    private String disease;
+
     @Column(name = "start_date_time")
     private LocalDateTime startDate;
 

@@ -1,7 +1,7 @@
 package com.healthcare.appointment_service.service;
 
 import com.healthcare.appointment_service.dto.AppointmentRequestDTO;
-import com.healthcare.appointment_service.dto.AppointmentResponseDTO;
+import com.healthcare.appointment_service.dto.AppointmentResponseDto;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
@@ -30,14 +30,14 @@ public interface AppointmentService {
     /**
      * This method returns all the appointments related to a doctor
      */
-    public List<AppointmentResponseDTO> getAllDoctorAppointments();
+    public List<AppointmentResponseDto> getAllDoctorAppointments();
 
     /**
      * This method used by a doctor to schedule next appointment for the patient
      * @param doctorId
      * @param patientId
      */
-    public AppointmentResponseDTO scheduleNextAppointment(Integer doctorId, Integer patientId);
+    public AppointmentResponseDto scheduleNextAppointment(Integer doctorId, Integer patientId);
 
     /**
      *
