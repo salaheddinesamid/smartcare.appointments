@@ -23,7 +23,7 @@ public class Appointment {
 
     @Column(name = "disease")
     @Enumerated(EnumType.STRING)
-    private String disease;
+    private Disease disease;
 
     @Column(name = "start_date_time")
     private LocalDateTime startDate;

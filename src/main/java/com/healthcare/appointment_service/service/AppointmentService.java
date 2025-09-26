@@ -2,6 +2,7 @@ package com.healthcare.appointment_service.service;
 
 import com.healthcare.appointment_service.dto.AppointmentRequestDTO;
 import com.healthcare.appointment_service.dto.AppointmentResponseDto;
+import com.healthcare.appointment_service.dto.NewAppointmentResponseDTO;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ public interface AppointmentService {
      * @param appointmentRequestDTO
      * @return
      */
-    public ResponseEntity<?> scheduleAppointment(AppointmentRequestDTO appointmentRequestDTO);
+    public NewAppointmentResponseDTO scheduleAppointment(AppointmentRequestDTO appointmentRequestDTO);
 
     /**
      * This method is used to reschedule an appointment
