@@ -5,6 +5,8 @@ import com.healthcare.appointment_service.dto.AppointmentRequestDTO;
 import com.healthcare.appointment_service.dto.AppointmentResponseDto;
 import com.healthcare.appointment_service.dto.NewAppointmentResponseDTO;
 import com.healthcare.appointment_service.exception.AppointmentCannotBeScheduledException;
+import com.healthcare.appointment_service.exception.AppointmentNotFoundException;
+import com.healthcare.appointment_service.exception.UnavailableDoctorException;
 import com.healthcare.appointment_service.model.Appointment;
 import com.healthcare.appointment_service.model.AppointmentStatus;
 import com.healthcare.appointment_service.model.AppointmentType;
@@ -14,6 +16,7 @@ import com.healthcare.appointment_service.service.AppointmentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cglib.core.Local;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -119,8 +122,37 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public ResponseEntity<?> rescheduleAppointment(Integer appointmentId, LocalDateTime newDate) {
-        return null;
+    public NewAppointmentResponseDTO rescheduleAppointment(Integer appointmentId, LocalDateTime newDate) {
+        // Fetch the appointment
+        Appointment appointment = appointmentRepository
+                .findById(appointmentId).orElseThrow(()-> new AppointmentNotFoundException(appointmentId));
+
+        // Check if the doctor is available
+        boolean isDoctorAvailable = checkDoctorAvailability(appointment.getDoctorId(),newDate);
+        if(!isDoctorAvailable){
+            throw new UnavailableDoctorException("");
+        }
+
+        appointment.setStartDate(newDate);
+
+        // save the appointment
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        return new NewAppointmentResponseDTO(
+                savedAppointment
+        );
+
+    }
+
+    /**
+     * This method is used to check the doctor availability
+     * @param date
+     * @return if there is an appointment in that date or not
+     */
+    private boolean checkDoctorAvailability(Integer id,LocalDateTime date){
+        // Fetch doctor appointments:
+        return appointmentRepository.findAllByDoctorIdAndStartDate(id,date)
+                .isEmpty();
     }
 
     @Override

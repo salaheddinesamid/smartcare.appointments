@@ -15,12 +15,12 @@ public interface AppointmentService {
      * @param appointmentRequestDTO
      * @return
      */
-    public NewAppointmentResponseDTO scheduleAppointment(AppointmentRequestDTO appointmentRequestDTO);
+    NewAppointmentResponseDTO scheduleAppointment(AppointmentRequestDTO appointmentRequestDTO);
 
     /**
      * This method is used to reschedule an appointment
      */
-    public ResponseEntity<?> rescheduleAppointment(Integer appointmentId, LocalDateTime newDate);
+    NewAppointmentResponseDTO rescheduleAppointment(Integer appointmentId, LocalDateTime newDate);
 
     /**
      * This method returns all the previous and next appointments of the patient
