@@ -1,5 +1,6 @@
 package com.healthcare.appointment_service.service.implementation;
 
+import com.healthcare.appointment_service.dto.ApiResponse;
 import com.healthcare.appointment_service.dto.AppointmentRequestDTO;
 import com.healthcare.appointment_service.dto.AppointmentResponseDto;
 import com.healthcare.appointment_service.dto.NewAppointmentResponseDTO;
@@ -10,23 +11,29 @@ import com.healthcare.appointment_service.model.AppointmentType;
 import com.healthcare.appointment_service.model.Disease;
 import com.healthcare.appointment_service.repository.AppointmentRepository;
 import com.healthcare.appointment_service.service.AppointmentService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-
+@Slf4j
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
 
 
     private static final String STAFF_MANAGEMENT_URI = "http://localhost:9000";
+    private static final String PATIENT_MANAGEMENT_URI = "http://localhost:8091";
     private final RestTemplate restTemplate;
     private final AppointmentRepository appointmentRepository;
 
@@ -40,10 +47,12 @@ public class AppointmentServiceImpl implements AppointmentService {
     public NewAppointmentResponseDTO scheduleAppointment(AppointmentRequestDTO appointmentRequestDTO) {
 
         // First we check if the patient & the doctor already exist in the system
-        boolean patientExistence = checkPatientExistence();
+        boolean patientExistence = checkPatientExistence(appointmentRequestDTO.getPatientNationalId());
         boolean doctorExistence = checkDoctorExistence(appointmentRequestDTO.getDoctorId());
 
-        if(patientExistence && !doctorExistence){
+        if(!patientExistence || !doctorExistence){
+            log.warn("The appointment cannot be scheduled. The status existence of patient is:{}",patientExistence);
+            log.warn("The appointment cannot be scheduled. The status existence of doctor is:{}",doctorExistence);
             throw new AppointmentCannotBeScheduledException();
         }
 
@@ -65,8 +74,21 @@ public class AppointmentServiceImpl implements AppointmentService {
      * This function is used to check the existence of the patient from patient-management service
      * @return boolean
      */
-    private boolean checkPatientExistence(){
-        return false;
+    private boolean checkPatientExistence(String nationalId){
+
+        String uri = PATIENT_MANAGEMENT_URI + "/api/patient-management/verify-existence?nationalId="+ nationalId;
+
+        HttpHeaders headers = new HttpHeaders();
+        ResponseEntity<ApiResponse<Boolean>> response =
+                restTemplate.exchange(
+                        uri,
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<ApiResponse<Boolean>>() {
+                        }
+                );
+
+        return response.getBody().getData();
     }
 
     /**
