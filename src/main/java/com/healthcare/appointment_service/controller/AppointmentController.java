@@ -2,6 +2,7 @@ package com.healthcare.appointment_service.controller;
 
 import com.healthcare.appointment_service.dto.ApiResponse;
 import com.healthcare.appointment_service.dto.AppointmentRequestDTO;
+import com.healthcare.appointment_service.dto.AppointmentResponseDto;
 import com.healthcare.appointment_service.dto.NewAppointmentResponseDTO;
 import com.healthcare.appointment_service.service.implementation.AppointmentServiceImpl;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/appointment")
@@ -49,5 +51,19 @@ public class AppointmentController {
                 .status(200)
                 .body(response);
 
+    }
+
+    @GetMapping("get_all")
+    public ResponseEntity<ApiResponse<?>> getAllAppointments(){
+        List<AppointmentResponseDto> appointments = appointmentService.getAll();
+
+        ApiResponse<List<AppointmentResponseDto>> response = new ApiResponse<>(
+                true,
+                "",
+                appointments
+        );
+
+        return ResponseEntity.ok()
+                .body(response);
     }
 }

@@ -44,4 +44,10 @@ public interface AppointmentService {
      *
      */
     public ResponseEntity<?> createPrescription();
+
+    /**
+     *
+     */
+
+    List<AppointmentResponseDto> getAll();
 }

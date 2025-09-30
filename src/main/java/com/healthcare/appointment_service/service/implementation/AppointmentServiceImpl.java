@@ -1,9 +1,6 @@
 package com.healthcare.appointment_service.service.implementation;
 
-import com.healthcare.appointment_service.dto.ApiResponse;
-import com.healthcare.appointment_service.dto.AppointmentRequestDTO;
-import com.healthcare.appointment_service.dto.AppointmentResponseDto;
-import com.healthcare.appointment_service.dto.NewAppointmentResponseDTO;
+import com.healthcare.appointment_service.dto.*;
 import com.healthcare.appointment_service.exception.AppointmentCannotBeScheduledException;
 import com.healthcare.appointment_service.exception.AppointmentNotFoundException;
 import com.healthcare.appointment_service.exception.UnavailableDoctorException;
@@ -29,13 +26,14 @@ import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
 
 
-    private static final String STAFF_MANAGEMENT_URI = "http://localhost:9000";
+    private static final String STAFF_MANAGEMENT_URI = "http://localhost:9020";
     private static final String PATIENT_MANAGEMENT_URI = "http://localhost:8091";
     private final RestTemplate restTemplate;
     private final AppointmentRepository appointmentRepository;
@@ -66,6 +64,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setDisease(Disease.valueOf(appointmentRequestDTO.getDisease()));
         appointment.setStartDate(appointmentRequestDTO.getStartDate());
         appointment.setStatus(AppointmentStatus.SCHEDULED);
+        appointment.setPatientId(appointmentRequestDTO.getPatientId());
 
         Appointment savedAppointment =  appointmentRepository.save(appointment);
 
@@ -173,5 +172,80 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public ResponseEntity<?> createPrescription() {
         return null;
+    }
+
+    @Override
+    public List<AppointmentResponseDto> getAll() {
+
+        // Fetch all appointments
+        List<Appointment> appointments = appointmentRepository.findAll();
+
+        // Get patients id
+        List<Integer> patientsId =
+                appointments.stream().map(Appointment::getPatientId)
+                        .toList();
+
+        // Get doctors id
+        List<Integer> doctorsId =
+                appointments.stream()
+                        .map(Appointment::getDoctorId)
+                        .toList();
+
+        // FETCH PATIENTS AND DOCTORS
+        List<PatientDto> patients = getPatients(patientsId);
+        List<DoctorDto> doctors = getDoctors(doctorsId);
+
+        // Map for quick look up
+        Map<Integer,PatientDto> patientsMap = patients
+                .stream().collect(Collectors.toMap(PatientDto::getPatientId, p-> p));
+
+        Map<Integer,DoctorDto> doctorsMap = doctors
+                .stream().collect(Collectors.toMap(DoctorDto::getDoctorId, d-> d));
+
+        return
+                appointments.stream()
+                        .map(appointment -> {
+                            PatientDto patient = patientsMap.get(appointment.getPatientId());
+                            DoctorDto doctor = doctorsMap.get(appointment.getDoctorId());
+                            return new AppointmentResponseDto(
+                                    appointment,
+                                    patient,
+                                    doctor
+                            );
+                        }).toList();
+    }
+
+    private List<PatientDto> getPatients(List<Integer> ids){
+        String uri = PATIENT_MANAGEMENT_URI + "/api/patient-management/get-patients";
+        HttpEntity<List<Integer>> entity = new HttpEntity<>(ids);
+
+        log.info("Fetching patients from service: {}",uri);
+        ResponseEntity<ApiResponse<List<PatientDto>>> response =
+                restTemplate.exchange(
+                        uri,
+                        HttpMethod.POST,
+                        entity,
+                        new ParameterizedTypeReference<>() {
+                        }
+                );
+
+        return response.getBody().getData();
+    }
+
+    private List<DoctorDto> getDoctors(List<Integer> ids){
+        String uri = STAFF_MANAGEMENT_URI + "/api/staff-management/doctor/get-doctors";
+
+        HttpEntity<List<Integer>> entity = new HttpEntity<>(ids);
+        log.info("Fetching doctors from service: {}",uri);
+        ResponseEntity<ApiResponse<List<DoctorDto>>> response =
+                restTemplate.exchange(
+                        uri,
+                        HttpMethod.POST,
+                        entity,
+                        new ParameterizedTypeReference<>() {
+                        }
+                );
+
+        return response.getBody().getData();
     }
 }
