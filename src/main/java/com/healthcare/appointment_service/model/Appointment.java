@@ -35,6 +35,10 @@ public class Appointment {
     @Enumerated(EnumType.STRING)
     private AppointmentType appointmentType;
 
+    @OneToOne
+    @Column(name = "prescription_id")
+    private Prescription prescription;
+
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;

@@ -18,3 +18,9 @@ public class AppointmentRequestDTO {
     private String disease;
     private LocalDateTime startDate;
 }
+
+
+@Data
+class PrescriptionDetails{
+
+}

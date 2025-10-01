@@ -3,6 +3,7 @@ package com.healthcare.appointment_service.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,10 +26,14 @@ public class Prescription {
     @Column(name = "issue_date")
     private LocalDateTime issueDate;
 
+    @Column(name = "valid_until")
+    private LocalDateTime validUntil;
+
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private PrescriptionStatus prescriptionStatus;
 
-    @Transient
-    private List<Integer> medicines;
+    @OneToMany
+    @JoinColumn(name = "prescription_detail_id")
+    private List<PrescriptionDetail> details;
 }
