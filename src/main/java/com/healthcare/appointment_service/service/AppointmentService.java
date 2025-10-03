@@ -1,8 +1,7 @@
 package com.healthcare.appointment_service.service;
 
-import com.healthcare.appointment_service.dto.AppointmentRequestDTO;
-import com.healthcare.appointment_service.dto.AppointmentResponseDto;
-import com.healthcare.appointment_service.dto.NewAppointmentResponseDTO;
+import com.healthcare.appointment_service.dto.*;
+import com.healthcare.appointment_service.model.Prescription;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
@@ -43,7 +42,7 @@ public interface AppointmentService {
     /**
      *
      */
-    public ResponseEntity<?> createPrescription();
+    public NewPrescriptionResponseDto createPrescription(Integer appointmentId,NewPrescriptionDto newPrescriptionDto);
 
     /**
      *

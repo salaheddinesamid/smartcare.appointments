@@ -4,11 +4,10 @@ import com.healthcare.appointment_service.dto.*;
 import com.healthcare.appointment_service.exception.AppointmentCannotBeScheduledException;
 import com.healthcare.appointment_service.exception.AppointmentNotFoundException;
 import com.healthcare.appointment_service.exception.UnavailableDoctorException;
-import com.healthcare.appointment_service.model.Appointment;
-import com.healthcare.appointment_service.model.AppointmentStatus;
-import com.healthcare.appointment_service.model.AppointmentType;
-import com.healthcare.appointment_service.model.Disease;
+import com.healthcare.appointment_service.model.*;
 import com.healthcare.appointment_service.repository.AppointmentRepository;
+import com.healthcare.appointment_service.repository.PrescriptionItemRepository;
+import com.healthcare.appointment_service.repository.PrescriptionRepository;
 import com.healthcare.appointment_service.service.AppointmentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +34,15 @@ public class AppointmentServiceImpl implements AppointmentService {
     private static final String PATIENT_MANAGEMENT_URI = "http://localhost:8091";
     private final RestTemplate restTemplate;
     private final AppointmentRepository appointmentRepository;
+    private final PrescriptionRepository prescriptionRepository;
+    private final PrescriptionItemRepository prescriptionItemRepository;
 
     @Autowired
-    public AppointmentServiceImpl(RestTemplate restTemplate, AppointmentRepository appointmentRepository) {
+    public AppointmentServiceImpl(RestTemplate restTemplate, AppointmentRepository appointmentRepository, PrescriptionRepository prescriptionRepository, PrescriptionItemRepository prescriptionItemRepository) {
         this.restTemplate = restTemplate;
         this.appointmentRepository = appointmentRepository;
+        this.prescriptionRepository = prescriptionRepository;
+        this.prescriptionItemRepository = prescriptionItemRepository;
     }
 
     @Override
@@ -168,8 +171,45 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public ResponseEntity<?> createPrescription() {
-        return null;
+    public NewPrescriptionResponseDto createPrescription(
+            Integer appointmentId,
+            NewPrescriptionDto newPrescriptionDto) {
+
+        // Fetch the appointment:
+        Appointment appointment =
+                appointmentRepository.findById(appointmentId)
+                        .orElseThrow();
+
+        // Create new prescription
+        Prescription prescription = new Prescription();
+
+        if(!newPrescriptionDto.getDetails().isEmpty()){
+            List<PrescriptionDetail> details =  newPrescriptionDto.getDetails()
+                    .stream().map(prescriptionDetail -> {
+                        PrescriptionDetail item = new PrescriptionDetail();
+                        item.setDosage(prescriptionDetail.getDosage());
+                        item.setFrequency(prescriptionDetail.getFrequency());
+                        item.setRoute(MedicineRoute.valueOf(prescriptionDetail.getRoute()));
+                        item.setDuration(prescriptionDetail.getDuration());
+                        item.setInstructions(prescriptionDetail.getInstructions());
+                        return prescriptionItemRepository.save(item);
+                    }).toList();
+
+            prescription.setDetails(details);
+        }
+        prescription.setIssueDate(LocalDateTime.now());
+        prescription.setValidUntil(newPrescriptionDto.getValidUntil());
+        prescription.setDoctorId(appointment.getDoctorId());
+        prescription.setPatientId(appointment.getPatientId());
+        prescription.setAppointment(appointment);
+
+        Prescription savedPrescription = prescriptionRepository.save(prescription);
+
+        appointment.setPrescription(savedPrescription);
+
+        return new NewPrescriptionResponseDto(
+                prescription
+        );
     }
 
     @Override

@@ -21,7 +21,7 @@ public class PrescriptionDetail {
     private String dosage;
 
     @Column(name = "frequency")
-    private String frequency;
+    private Integer frequency;
 
     @Column(name = "route")
     @Enumerated(EnumType.STRING)

@@ -3,10 +3,11 @@ package com.healthcare.appointment_service.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.cglib.core.Local;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,6 +17,9 @@ public class Prescription {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer prescriptionId;
+
+    @Column(name = "prescription_reference", unique = true, nullable = false)
+    private String prescriptionReference;
 
     @Column(name = "doctor_id")
     private Integer doctorId;
@@ -27,7 +31,12 @@ public class Prescription {
     private LocalDateTime issueDate;
 
     @Column(name = "valid_until")
-    private LocalDateTime validUntil;
+    private LocalDate validUntil;
+
+    @OneToOne
+    @Column(name = "appointment_id")
+    private Appointment appointment;
+
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -36,4 +45,9 @@ public class Prescription {
     @OneToMany
     @JoinColumn(name = "prescription_detail_id")
     private List<PrescriptionDetail> details;
+
+    @PrePersist
+    private void generateReferenceNumber(){
+        this.prescriptionReference = UUID.randomUUID().toString();
+    }
 }
