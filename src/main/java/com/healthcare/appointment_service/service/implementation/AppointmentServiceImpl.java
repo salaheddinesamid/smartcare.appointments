@@ -253,6 +253,23 @@ public class AppointmentServiceImpl implements AppointmentService {
                         }).toList();
     }
 
+    @Override
+    public PrescriptionValidityResponseDto checkPrescriptionValidity(String refNumber) {
+
+        Prescription prescription = prescriptionRepository
+                .findByPrescriptionReferenceNumber(refNumber)
+                .orElseThrow();
+
+        PrescriptionResponseDto details = new PrescriptionResponseDto(
+                prescription
+        );
+
+        return new PrescriptionValidityResponseDto(
+                true,
+                details
+        );
+    }
+
     private List<PatientDto> getPatients(List<Integer> ids){
         String uri = PATIENT_MANAGEMENT_URI + "/api/patient-management/get-patients";
         HttpEntity<List<Integer>> entity = new HttpEntity<>(ids);

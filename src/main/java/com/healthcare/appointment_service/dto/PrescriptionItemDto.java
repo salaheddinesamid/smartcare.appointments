@@ -1,8 +1,9 @@
 package com.healthcare.appointment_service.dto;
 
 import lombok.Data;
+
 @Data
-public class PrescriptionDetailDto {
+public class PrescriptionItemDto {
     private Integer medicineId;
     private String dosage;
     private Integer frequency;

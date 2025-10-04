@@ -18,8 +18,8 @@ public class Prescription {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer prescriptionId;
 
-    @Column(name = "prescription_reference", unique = true, nullable = false)
-    private String prescriptionReference;
+    @Column(name = "prescription_reference_no", unique = true, nullable = false)
+    private String prescriptionReferenceNumber;
 
     @Column(name = "doctor_id")
     private Integer doctorId;
@@ -48,6 +48,6 @@ public class Prescription {
 
     @PrePersist
     private void generateReferenceNumber(){
-        this.prescriptionReference = UUID.randomUUID().toString();
+        this.prescriptionReferenceNumber = UUID.randomUUID().toString();
     }
 }

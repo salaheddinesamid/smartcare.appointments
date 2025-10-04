@@ -25,28 +25,35 @@ public interface AppointmentService {
      * This method returns all the previous and next appointments of the patient
      * @param patientId
      */
-    public ResponseEntity<?> getAllPatientAppointments(Integer patientId);
+    ResponseEntity<?> getAllPatientAppointments(Integer patientId);
 
     /**
      * This method returns all the appointments related to a doctor
      */
-    public List<AppointmentResponseDto> getAllDoctorAppointments();
+    List<AppointmentResponseDto> getAllDoctorAppointments();
 
     /**
      * This method used by a doctor to schedule next appointment for the patient
      * @param doctorId
      * @param patientId
      */
-    public AppointmentResponseDto scheduleNextAppointment(Integer doctorId, Integer patientId);
+    AppointmentResponseDto scheduleNextAppointment(Integer doctorId, Integer patientId);
 
     /**
      *
      */
-    public NewPrescriptionResponseDto createPrescription(Integer appointmentId,NewPrescriptionDto newPrescriptionDto);
+    NewPrescriptionResponseDto createPrescription(Integer appointmentId,NewPrescriptionDto newPrescriptionDto);
 
     /**
      *
      */
 
     List<AppointmentResponseDto> getAll();
+
+    /**
+     * This method verifies whether a prescription is valid or not
+     * @param refNumber
+     * @return
+     */
+    PrescriptionValidityResponseDto checkPrescriptionValidity(String refNumber);
 }
