@@ -203,10 +203,12 @@ public class AppointmentServiceImpl implements AppointmentService {
         prescription.setPatientId(appointment.getPatientId());
         prescription.setAppointment(appointment);
 
+        // Save the prescription
         Prescription savedPrescription = prescriptionRepository.save(prescription);
 
         appointment.setPrescription(savedPrescription);
 
+        // Return a object response
         return new NewPrescriptionResponseDto(
                 prescription
         );

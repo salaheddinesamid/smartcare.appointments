@@ -25,7 +25,7 @@ public interface AppointmentService {
      * This method returns all the previous and next appointments of the patient
      * @param patientId
      */
-    ResponseEntity<?> getAllPatientAppointments(Integer patientId);
+    List<AppointmentResponseDto> getAllPatientAppointments(Integer patientId);
 
     /**
      * This method returns all the appointments related to a doctor
