@@ -30,7 +30,7 @@ public interface AppointmentService {
     /**
      * This method returns all the appointments related to a doctor
      */
-    List<AppointmentResponseDto> getAllDoctorAppointments();
+    List<AppointmentResponseDto> getAllDoctorAppointments(Integer doctorId);
 
     /**
      * This method used by a doctor to schedule next appointment for the patient

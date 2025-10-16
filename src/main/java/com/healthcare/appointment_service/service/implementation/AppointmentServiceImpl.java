@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
 
-
     private static final String STAFF_MANAGEMENT_URI = "http://localhost:9020";
     private static final String PATIENT_MANAGEMENT_URI = "http://localhost:8091";
     private final RestTemplate restTemplate;
@@ -156,13 +155,55 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public ResponseEntity<?> getAllPatientAppointments(Integer patientId) {
+    public List<AppointmentResponseDto> getAllPatientAppointments(Integer patientId) {
+        // to be implemented...
         return null;
     }
 
     @Override
-    public List<AppointmentResponseDto> getAllDoctorAppointments() {
-        return List.of();
+    public List<AppointmentResponseDto> getAllDoctorAppointments(Integer doctorId) {
+        // Fetch all the appointments from the db:
+        List<Appointment> appointments =
+                appointmentRepository.findAllByDoctorId(doctorId).orElseThrow(()-> new AppointmentNotFoundException(doctorId));
+
+        // Get patient ids:
+        List<Integer> patientIds = appointments.stream().map(Appointment::getPatientId).toList();
+
+
+        // Fetch patients and doctor information:
+        List<PatientDto> patients = getPatients(patientIds);
+        DoctorDto doctor = getDoctor(doctorId);
+
+
+        // Map patients for quick look up:
+        Map<Integer,PatientDto> patientsMap =
+                patients.stream().collect(Collectors.toMap(PatientDto::getPatientId, p->p));
+
+        return
+                appointments.stream()
+                        .map(appointment -> {
+                            PatientDto patient = patientsMap.get(appointment.getPatientId());
+                            return new AppointmentResponseDto(
+                                    appointment,
+                                    patient,
+                                    doctor
+                            );
+                        }).toList();
+
+    }
+
+    private DoctorDto getDoctor(Integer doctorId){
+        String uri = STAFF_MANAGEMENT_URI + "/api/staff-management/doctor/get-doctor?id="+doctorId;
+        ResponseEntity<DoctorDto> response =
+                restTemplate.exchange(
+                        uri,
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<DoctorDto>() {
+                        }
+                );
+
+        return response.getBody();
     }
 
     @Override
@@ -216,7 +257,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<AppointmentResponseDto> getAll() {
-
         // Fetch all appointments
         List<Appointment> appointments = appointmentRepository.findAll();
 
