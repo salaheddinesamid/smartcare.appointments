@@ -5,6 +5,7 @@ import com.healthcare.appointment_service.dto.AppointmentRequestDTO;
 import com.healthcare.appointment_service.dto.AppointmentResponseDto;
 import com.healthcare.appointment_service.dto.NewAppointmentResponseDTO;
 import com.healthcare.appointment_service.service.implementation.AppointmentServiceImpl;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,6 +65,37 @@ public class AppointmentController {
         );
 
         return ResponseEntity.ok()
+                .body(response);
+    }
+
+    @GetMapping("doctor/get_all")
+    public ResponseEntity<ApiResponse<?>> getAllDoctorAppointments(@RequestParam Integer doctorId){
+        List<AppointmentResponseDto> appointments = appointmentService.getAllDoctorAppointments(doctorId);
+
+        ApiResponse<?> response =
+                new ApiResponse<>(
+                        true,
+                        "",
+                        appointments
+                );
+        return ResponseEntity
+                .status(200)
+                .body(response);
+    }
+
+    @GetMapping("patient/get_all")
+    public ResponseEntity<ApiResponse<?>> getAllPatientAppointments(@RequestParam Integer patientId){
+        List<AppointmentResponseDto> appointments = appointmentService
+                .getAllPatientAppointments(patientId);
+
+        ApiResponse<?> response = new ApiResponse<>(
+                true,
+                "",
+                appointments
+        );
+
+        return ResponseEntity
+                .status(200)
                 .body(response);
     }
 }
