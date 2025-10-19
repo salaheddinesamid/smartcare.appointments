@@ -36,7 +36,7 @@ public class Appointment {
     private AppointmentType appointmentType;
 
     @OneToOne
-    @Column(name = "prescription_id")
+    @JoinColumn(name = "precsription_id")
     private Prescription prescription;
 
     @Column(name = "status")

@@ -34,7 +34,7 @@ public class Prescription {
     private LocalDate validUntil;
 
     @OneToOne
-    @Column(name = "appointment_id")
+    @JoinColumn(name = "appointment_id")
     private Appointment appointment;
 
 

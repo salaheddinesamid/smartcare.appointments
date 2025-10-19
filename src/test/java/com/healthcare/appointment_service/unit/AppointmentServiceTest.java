@@ -1,6 +1,8 @@
 package com.healthcare.appointment_service.unit;
 
 import com.healthcare.appointment_service.dto.AppointmentRequestDTO;
+import com.healthcare.appointment_service.dto.AppointmentResponseDto;
+import com.healthcare.appointment_service.dto.NewAppointmentResponseDTO;
 import com.healthcare.appointment_service.repository.AppointmentRepository;
 import com.healthcare.appointment_service.service.implementation.AppointmentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,22 +30,22 @@ public class AppointmentServiceTest {
      */
     @Test
     public void testScheduleAppointment(){
-        // Patient
-        Integer patientId = 1;
-        String patientNationalId = "";
-        // Doctor
-        Integer doctorId = 2;
 
-        LocalDateTime startDate = LocalDateTime.now();
-
+        // Mock appointment request:
         AppointmentRequestDTO request = new AppointmentRequestDTO(
-                patientId,
-                patientNationalId,
-                doctorId,
+                1,
+                "",
+                1,
                 "CONSULTATION",
                 "DIABETES",
-                startDate
+                LocalDateTime.now(),
+                null
         );
+
+        NewAppointmentResponseDTO response = appointmentService
+                .scheduleAppointment(request);
+
+
 
 
 
