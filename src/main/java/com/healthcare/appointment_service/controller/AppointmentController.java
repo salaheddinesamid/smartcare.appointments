@@ -83,6 +83,21 @@ public class AppointmentController {
                 .body(response);
     }
 
+    @GetMapping("doctor/get-by-date")
+    public ResponseEntity<ApiResponse<?>> getDoctorAppointmentByDate(@RequestParam Integer doctorId,@RequestParam LocalDate date){
+        List<AppointmentResponseDto> appointments =
+                appointmentService.getDoctorAppointmentsByDate(doctorId,date);
+
+        ApiResponse<?> response = new ApiResponse<>(
+                true,
+                "",
+                appointments
+        );
+
+        return ResponseEntity.status(200)
+                .body(response);
+    }
+
     @GetMapping("patient/get_all")
     public ResponseEntity<ApiResponse<?>> getAllPatientAppointments(@RequestParam Integer patientId){
         List<AppointmentResponseDto> appointments = appointmentService
@@ -97,5 +112,10 @@ public class AppointmentController {
         return ResponseEntity
                 .status(200)
                 .body(response);
+    }
+
+    @GetMapping("patient/get-by-date")
+    public ResponseEntity<ApiResponse<?>> getAllPatientAppointmentsByDate(@RequestParam LocalDateTime date){
+        return null;
     }
 }

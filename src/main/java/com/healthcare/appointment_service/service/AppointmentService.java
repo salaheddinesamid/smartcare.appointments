@@ -4,6 +4,7 @@ import com.healthcare.appointment_service.dto.*;
 import com.healthcare.appointment_service.model.Prescription;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,10 +28,14 @@ public interface AppointmentService {
      */
     List<AppointmentResponseDto> getAllPatientAppointments(Integer patientId);
 
+    List<AppointmentResponseDto> getPatientAppointmentsByDate(Integer patientId, LocalDate date);
+
     /**
      * This method returns all the appointments related to a doctor
      */
     List<AppointmentResponseDto> getAllDoctorAppointments(Integer doctorId);
+
+    List<AppointmentResponseDto> getDoctorAppointmentsByDate(Integer doctorId, LocalDate date);
 
     /**
      * This method used by a doctor to schedule next appointment for the patient
