@@ -46,4 +46,27 @@ public class AppointmentExceptionController {
                                 null
                         ));
     }
+
+    @ExceptionHandler(AppointmentAlreadyCompletedException.class)
+    public ResponseEntity<ApiResponse<?>> handleAppointmentAlreadyCompleted(){
+        return
+                ResponseEntity
+                        .status(409)
+                        .body(new ApiResponse<>(
+                                false,
+                                "The appointment cannot be completed",
+                                null
+                        ));
+    }
+
+    @ExceptionHandler(AppointmentAlreadyCanceled.class)
+    public ResponseEntity<ApiResponse<?>> handleCanceledAppointment(){
+        return
+                ResponseEntity.status(409)
+                        .body(new ApiResponse<>(
+                                false,
+                                "",
+                                null
+                        ));
+    }
 }

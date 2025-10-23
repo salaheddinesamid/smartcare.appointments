@@ -68,6 +68,19 @@ public class AppointmentController {
 
     }
 
+    @PutMapping("complete-session")
+    ResponseEntity<ApiResponse<?>> completeAppointment(@RequestParam Integer appointmentId){
+        AppointmentSessionDto session = appointmentService.completeAppointmentSession(appointmentId);
+
+        ApiResponse<?> response = new ApiResponse<>(
+                true,
+                "",
+                session
+        );
+        return ResponseEntity.status(200)
+                .body(response);
+    }
+
     @GetMapping("get_all")
     public ResponseEntity<ApiResponse<?>> getAllAppointments(){
         List<AppointmentResponseDto> appointments = appointmentService.getAll();

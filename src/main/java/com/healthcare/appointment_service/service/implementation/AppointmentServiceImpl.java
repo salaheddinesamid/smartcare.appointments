@@ -366,10 +366,12 @@ public class AppointmentServiceImpl implements AppointmentService {
         boolean notStarted = appointment.getStatus().equals(AppointmentStatus.SCHEDULED);
         boolean validStartDate = appointment.getStartDate().isBefore(LocalDateTime.now());
 
+        // Check if the appointment already started
         if(!notStarted){
             throw new AppointmentAlreadyStartedException(appointmentId);
         }
 
+        // Check if the start date is arrived
         if(!validStartDate){
             throw new AppointmentStartDateNotValidException();
         }
@@ -392,6 +394,17 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointmentRepository.findById(appointmentId)
                         .orElseThrow();
 
+        // Throw runtime exception if the appointment is already completed
+        if(appointment.getStatus().equals(AppointmentStatus.COMPLETED)){
+            throw new AppointmentAlreadyCompletedException();
+        }
+
+        // Throw runtime exception if the appointment is already canceled
+        if(appointment.getStatus().equals(AppointmentStatus.CANCELED)){
+            throw new AppointmentAlreadyCanceled();
+        }
+
+        // Otherwise
         // update the appointment:
         appointment.setEndDate(LocalDateTime.now());
         appointment.setStatus(AppointmentStatus.COMPLETED);
