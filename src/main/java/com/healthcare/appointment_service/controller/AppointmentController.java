@@ -1,9 +1,6 @@
 package com.healthcare.appointment_service.controller;
 
-import com.healthcare.appointment_service.dto.ApiResponse;
-import com.healthcare.appointment_service.dto.AppointmentRequestDTO;
-import com.healthcare.appointment_service.dto.AppointmentResponseDto;
-import com.healthcare.appointment_service.dto.NewAppointmentResponseDTO;
+import com.healthcare.appointment_service.dto.*;
 import com.healthcare.appointment_service.service.implementation.AppointmentServiceImpl;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +45,23 @@ public class AppointmentController {
                         "The appointment has been rescheduled successfully",
                         updatedAppointment
                 );
+        return ResponseEntity
+                .status(200)
+                .body(response);
+
+    }
+
+    @PutMapping("start-session")
+    public ResponseEntity<ApiResponse<?>> startAppointment(@RequestParam Integer appointmentId){
+
+        AppointmentSessionDto session = appointmentService.startAppointmentSession(appointmentId);
+
+        ApiResponse<?> response = new ApiResponse<>(
+                true,
+                "The session has already been started",
+                session
+        );
+
         return ResponseEntity
                 .status(200)
                 .body(response);

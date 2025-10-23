@@ -35,4 +35,15 @@ public class AppointmentExceptionController {
                 ));
 
     }
+
+    @ExceptionHandler(AppointmentAlreadyStartedException.class)
+    public ResponseEntity<ApiResponse<?>> handleAppointmentAlreadyStarted(){
+        return
+                ResponseEntity.status(500)
+                        .body(new ApiResponse<>(
+                                false,
+                                "",
+                                null
+                        ));
+    }
 }

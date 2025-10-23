@@ -1,9 +1,7 @@
 package com.healthcare.appointment_service.service.implementation;
 
 import com.healthcare.appointment_service.dto.*;
-import com.healthcare.appointment_service.exception.AppointmentCannotBeScheduledException;
-import com.healthcare.appointment_service.exception.AppointmentNotFoundException;
-import com.healthcare.appointment_service.exception.UnavailableDoctorException;
+import com.healthcare.appointment_service.exception.*;
 import com.healthcare.appointment_service.model.*;
 import com.healthcare.appointment_service.repository.AppointmentRepository;
 import com.healthcare.appointment_service.repository.PrescriptionItemRepository;
@@ -356,6 +354,52 @@ public class AppointmentServiceImpl implements AppointmentService {
                                     doctor
                             );
                         }).toList();
+    }
+
+    @Override
+    public AppointmentSessionDto startAppointmentSession(Integer appointmentId) {
+        long duration = 60;
+        Appointment appointment =
+                appointmentRepository.findById(appointmentId).orElseThrow();
+
+        // Check if the appointment has not been started & and it's the right date:
+        boolean notStarted = appointment.getStatus().equals(AppointmentStatus.SCHEDULED);
+        boolean validStartDate = appointment.getStartDate().isBefore(LocalDateTime.now());
+
+        if(!notStarted){
+            throw new AppointmentAlreadyStartedException(appointmentId);
+        }
+
+        if(!validStartDate){
+            throw new AppointmentStartDateNotValidException();
+        }
+
+        appointment.setStatus(AppointmentStatus.ON_GOING);
+        appointment.setEndDate(LocalDateTime.now().plusMinutes(duration));
+        Appointment savedAppointment =  appointmentRepository.save(appointment);
+
+        return new AppointmentSessionDto(
+                savedAppointment
+        );
+
+    }
+
+    @Override
+    public AppointmentSessionDto completeAppointmentSession(Integer appointmentId) {
+        // Fetch the appointment from db:
+
+        Appointment appointment =
+                appointmentRepository.findById(appointmentId)
+                        .orElseThrow();
+
+        // update the appointment:
+        appointment.setEndDate(LocalDateTime.now());
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+        return new AppointmentSessionDto(
+                savedAppointment
+        );
     }
 
     @Override

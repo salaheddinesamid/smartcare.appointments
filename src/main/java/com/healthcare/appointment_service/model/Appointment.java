@@ -25,6 +25,9 @@ public class Appointment {
     @Enumerated(EnumType.STRING)
     private Disease disease;
 
+    @Column(name = "duration")
+    private long duration;
+
     @Column(name = "start_date_time")
     private LocalDateTime startDate;
 

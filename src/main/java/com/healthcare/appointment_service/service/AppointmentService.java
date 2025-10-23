@@ -1,6 +1,7 @@
 package com.healthcare.appointment_service.service;
 
 import com.healthcare.appointment_service.dto.*;
+import com.healthcare.appointment_service.model.Appointment;
 import com.healthcare.appointment_service.model.Prescription;
 import org.springframework.http.ResponseEntity;
 
@@ -54,6 +55,20 @@ public interface AppointmentService {
      */
 
     List<AppointmentResponseDto> getAll();
+
+    /**
+     * This function is responsible for starting appointments
+     * @param appointmentId
+     * @return
+     */
+    AppointmentSessionDto startAppointmentSession(Integer appointmentId);
+
+    /**
+     * This function handles completing an appointment session
+     * @param appointmentId
+     * @return
+     */
+    AppointmentSessionDto completeAppointmentSession(Integer appointmentId);
 
     /**
      * This method verifies whether a prescription is valid or not
