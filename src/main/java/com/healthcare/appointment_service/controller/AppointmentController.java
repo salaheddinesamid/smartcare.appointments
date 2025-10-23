@@ -81,6 +81,14 @@ public class AppointmentController {
                 .body(response);
     }
 
+    @PutMapping("cancel")
+    ResponseEntity<ApiResponse<?>> cancelAppointment(@RequestParam Integer appointmentId){
+        ApiResponse<?> response = appointmentService
+                .cancelAppointment(appointmentId);
+        return ResponseEntity.status(200)
+                .body(response);
+    }
+
     @GetMapping("get_all")
     public ResponseEntity<ApiResponse<?>> getAllAppointments(){
         List<AppointmentResponseDto> appointments = appointmentService.getAll();

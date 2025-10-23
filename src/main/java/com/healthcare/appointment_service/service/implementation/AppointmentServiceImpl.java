@@ -416,6 +416,35 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    public ApiResponse<?> cancelAppointment(Integer appointmentId) {
+        // Fetch the appointment from db:
+        Appointment appointment = appointmentRepository
+                .findById(appointmentId).orElseThrow();
+
+        // Check if the appointment is not already started or there is at most 24 hours before starting date:
+        if(appointment.getStatus().equals(AppointmentStatus.ON_GOING)){
+
+        }
+
+        appointment.setStatus(AppointmentStatus.CANCELED);
+
+        // Cancel the invoice:
+        // removeInvoice();
+
+        return new ApiResponse<>(
+                true,
+                "The appointment has been canceled successfully",
+                null
+        );
+    }
+
+    // This is a method helper which cancel the invoice when an appointment is canceled. It runs as a Thread
+    private ResponseEntity<ApiResponse<?>> removeInvoice(){
+        // To be implemented...
+        return null;
+    }
+
+    @Override
     public PrescriptionValidityResponseDto checkPrescriptionValidity(String refNumber) {
 
         Prescription prescription = prescriptionRepository

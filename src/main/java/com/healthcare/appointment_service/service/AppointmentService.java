@@ -71,6 +71,12 @@ public interface AppointmentService {
     AppointmentSessionDto completeAppointmentSession(Integer appointmentId);
 
     /**
+     * This function handles appointment cancellation
+     * @param appointmentId
+     * @return
+     */
+    ApiResponse<?> cancelAppointment(Integer appointmentId);
+    /**
      * This method verifies whether a prescription is valid or not
      * @param refNumber
      * @return
