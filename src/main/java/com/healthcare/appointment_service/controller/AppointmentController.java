@@ -2,7 +2,6 @@ package com.healthcare.appointment_service.controller;
 
 import com.healthcare.appointment_service.dto.*;
 import com.healthcare.appointment_service.service.implementation.AppointmentServiceImpl;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

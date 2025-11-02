@@ -45,10 +45,7 @@ public interface AppointmentService {
      */
     AppointmentResponseDto scheduleNextAppointment(Integer doctorId, Integer patientId);
 
-    /**
-     *
-     */
-    NewPrescriptionResponseDto createPrescription(Integer appointmentId,NewPrescriptionDto newPrescriptionDto);
+
 
     /**
      *
@@ -76,10 +73,5 @@ public interface AppointmentService {
      * @return
      */
     ApiResponse<?> cancelAppointment(Integer appointmentId);
-    /**
-     * This method verifies whether a prescription is valid or not
-     * @param refNumber
-     * @return
-     */
-    PrescriptionValidityResponseDto checkPrescriptionValidity(String refNumber);
+
 }

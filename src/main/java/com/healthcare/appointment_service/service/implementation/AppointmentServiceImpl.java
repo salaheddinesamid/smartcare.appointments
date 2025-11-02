@@ -272,49 +272,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         return null;
     }
 
-    @Override
-    public NewPrescriptionResponseDto createPrescription(
-            Integer appointmentId,
-            NewPrescriptionDto newPrescriptionDto) {
 
-        // Fetch the appointment:
-        Appointment appointment =
-                appointmentRepository.findById(appointmentId)
-                        .orElseThrow();
-
-        // Create new prescription
-        Prescription prescription = new Prescription();
-
-        if(!newPrescriptionDto.getDetails().isEmpty()){
-            List<PrescriptionDetail> details =  newPrescriptionDto.getDetails()
-                    .stream().map(prescriptionDetail -> {
-                        PrescriptionDetail item = new PrescriptionDetail();
-                        item.setDosage(prescriptionDetail.getDosage());
-                        item.setFrequency(prescriptionDetail.getFrequency());
-                        item.setRoute(MedicineRoute.valueOf(prescriptionDetail.getRoute()));
-                        item.setDuration(prescriptionDetail.getDuration());
-                        item.setInstructions(prescriptionDetail.getInstructions());
-                        return prescriptionItemRepository.save(item);
-                    }).toList();
-
-            prescription.setDetails(details);
-        }
-        prescription.setIssueDate(LocalDateTime.now());
-        prescription.setValidUntil(newPrescriptionDto.getValidUntil());
-        prescription.setDoctorId(appointment.getDoctorId());
-        prescription.setPatientId(appointment.getPatientId());
-        prescription.setAppointment(appointment);
-
-        // Save the prescription
-        Prescription savedPrescription = prescriptionRepository.save(prescription);
-
-        appointment.setPrescription(savedPrescription);
-
-        // Return a object response
-        return new NewPrescriptionResponseDto(
-                prescription
-        );
-    }
 
     @Override
     public List<AppointmentResponseDto> getAll() {
@@ -444,22 +402,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         return null;
     }
 
-    @Override
-    public PrescriptionValidityResponseDto checkPrescriptionValidity(String refNumber) {
 
-        Prescription prescription = prescriptionRepository
-                .findByPrescriptionReferenceNumber(refNumber)
-                .orElseThrow();
-
-        PrescriptionResponseDto details = new PrescriptionResponseDto(
-                prescription
-        );
-
-        return new PrescriptionValidityResponseDto(
-                true,
-                details
-        );
-    }
 
     private List<PatientDto> getPatients(List<Integer> ids){
         String uri = PATIENT_MANAGEMENT_URI + "/api/patient-management/get-patients";

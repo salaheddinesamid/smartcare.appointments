@@ -25,7 +25,7 @@ public class Appointment {
     @Enumerated(EnumType.STRING)
     private Disease disease;
 
-    @Column(name = "duration")
+    @Column(name = "duration", nullable = true)
     private long duration;
 
     @Column(name = "start_date_time")
