@@ -229,7 +229,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<Appointment> appointments =
                 appointmentRepository.findAllByDoctorIdAndStartDate(doctorId,localDateTime).orElseThrow();
         // Get patient ids:
-        List<Integer> patientIds = appointments.stream().map(Appointment::getPatientId).toList();
+        List<Integer> patientIds = appointments.stream().map(Appointment::getPatientId).toList(); // (duplicate)
 
 
         // Fetch patients and doctor information:

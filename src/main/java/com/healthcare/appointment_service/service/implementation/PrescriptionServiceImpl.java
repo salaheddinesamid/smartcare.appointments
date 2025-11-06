@@ -79,6 +79,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     @Override
     public PrescriptionValidityResponseDto checkPrescriptionValidity(String refNumber) {
 
+        // Fetch the prescription from db:
         Prescription prescription = prescriptionRepository
                 .findByPrescriptionReferenceNumber(refNumber)
                 .orElseThrow();
