@@ -43,7 +43,7 @@ public class AppointmentExceptionController {
                         .body(new ApiResponse<>(
                                 false,
                                 "",
-                                null
+                                "This appointment is already on going..."
                         ));
     }
 

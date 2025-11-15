@@ -321,12 +321,14 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointmentRepository.findById(appointmentId).orElseThrow();
 
         // Check if the appointment has not been started & and it's the right date:
-        boolean notStarted = appointment.getStatus().equals(AppointmentStatus.SCHEDULED);
         boolean validStartDate = appointment.getStartDate().isBefore(LocalDateTime.now());
 
-        // Check if the appointment already started
-        if(!notStarted){
+        if(appointment.getStatus().equals(AppointmentStatus.ON_GOING)){
             throw new AppointmentAlreadyStartedException(appointmentId);
+        }
+
+        if(appointment.getStatus().equals(AppointmentStatus.COMPLETED)){
+            throw new AppointmentAlreadyCompletedException();
         }
 
         // Check if the start date is arrived
