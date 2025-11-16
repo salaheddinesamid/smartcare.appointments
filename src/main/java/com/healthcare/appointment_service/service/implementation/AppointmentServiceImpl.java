@@ -4,9 +4,11 @@ import com.healthcare.appointment_service.dto.*;
 import com.healthcare.appointment_service.exception.*;
 import com.healthcare.appointment_service.model.*;
 import com.healthcare.appointment_service.repository.AppointmentRepository;
+import com.healthcare.appointment_service.repository.AppointmentSessionRepository;
 import com.healthcare.appointment_service.repository.PrescriptionItemRepository;
 import com.healthcare.appointment_service.repository.PrescriptionRepository;
 import com.healthcare.appointment_service.service.AppointmentService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,13 +36,15 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final PrescriptionRepository prescriptionRepository;
     private final PrescriptionItemRepository prescriptionItemRepository;
+    private final AppointmentSessionRepository appointmentSessionRepository;
 
     @Autowired
-    public AppointmentServiceImpl(RestTemplate restTemplate, AppointmentRepository appointmentRepository, PrescriptionRepository prescriptionRepository, PrescriptionItemRepository prescriptionItemRepository) {
+    public AppointmentServiceImpl(RestTemplate restTemplate, AppointmentRepository appointmentRepository, PrescriptionRepository prescriptionRepository, PrescriptionItemRepository prescriptionItemRepository, AppointmentSessionRepository appointmentSessionRepository) {
         this.restTemplate = restTemplate;
         this.appointmentRepository = appointmentRepository;
         this.prescriptionRepository = prescriptionRepository;
         this.prescriptionItemRepository = prescriptionItemRepository;
+        this.appointmentSessionRepository = appointmentSessionRepository;
     }
 
     @Override
@@ -315,6 +319,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional
     public AppointmentSessionDto startAppointmentSession(Integer appointmentId) {
         long duration = 60;
         Appointment appointment =
@@ -336,9 +341,20 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new AppointmentStartDateNotValidException();
         }
 
+        // Create new appointment session:
+        AppointmentSession appointmentSession = new AppointmentSession();
+        appointmentSession.setAppointment(appointment);
+        appointmentSession.setDuration(appointment.getDuration());
+        appointmentSession.setTimeLeft(appointment.getDuration());
+        appointmentSession.setStartDate(LocalDateTime.now());
+
+
         appointment.setStatus(AppointmentStatus.ON_GOING);
         appointment.setEndDate(LocalDateTime.now().plusMinutes(duration));
         Appointment savedAppointment =  appointmentRepository.save(appointment);
+
+        // save the appointment session:
+
 
         return new AppointmentSessionDto(
                 savedAppointment
