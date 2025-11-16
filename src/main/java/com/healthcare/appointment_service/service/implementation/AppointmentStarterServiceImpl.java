@@ -1,0 +1,104 @@
+package com.healthcare.appointment_service.service.implementation;
+
+import com.healthcare.appointment_service.dto.AppointmentSessionDto;
+import com.healthcare.appointment_service.exception.AppointmentAlreadyCanceled;
+import com.healthcare.appointment_service.exception.AppointmentAlreadyCompletedException;
+import com.healthcare.appointment_service.exception.AppointmentAlreadyStartedException;
+import com.healthcare.appointment_service.exception.AppointmentStartDateNotValidException;
+import com.healthcare.appointment_service.model.Appointment;
+import com.healthcare.appointment_service.model.AppointmentSession;
+import com.healthcare.appointment_service.model.AppointmentStatus;
+import com.healthcare.appointment_service.repository.AppointmentRepository;
+import com.healthcare.appointment_service.repository.AppointmentSessionRepository;
+import com.healthcare.appointment_service.service.AppointmentSessionStarterService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+
+@Service
+public class AppointmentStarterServiceImpl implements AppointmentSessionStarterService {
+
+    private final AppointmentRepository appointmentRepository;
+    private final AppointmentSessionRepository appointmentSessionRepository;
+
+    @Autowired
+    public AppointmentStarterServiceImpl(AppointmentRepository appointmentRepository, AppointmentSessionRepository appointmentSessionRepository) {
+        this.appointmentRepository = appointmentRepository;
+        this.appointmentSessionRepository = appointmentSessionRepository;
+    }
+
+    @Override
+    public AppointmentSessionDto startSession(Integer appointmentId) {
+        long duration = 60;
+        Appointment appointment =
+                appointmentRepository.findById(appointmentId).orElseThrow();
+
+        // Check if the appointment has not been started & and it's the right date:
+        boolean validStartDate = appointment.getStartDate().isBefore(LocalDateTime.now());
+
+        if(appointment.getStatus().equals(AppointmentStatus.ON_GOING)){
+            throw new AppointmentAlreadyStartedException(appointmentId);
+        }
+
+        if(appointment.getStatus().equals(AppointmentStatus.COMPLETED)){
+            throw new AppointmentAlreadyCompletedException();
+        }
+
+        // Check if the start date is arrived
+        if(!validStartDate){
+            throw new AppointmentStartDateNotValidException();
+        }
+
+        // Create new appointment session:
+        AppointmentSession appointmentSession = new AppointmentSession();
+        appointmentSession.setAppointment(appointment);
+        appointmentSession.setDuration(appointment.getDuration());
+        appointmentSession.setTimeLeft(appointment.getDuration());
+        appointmentSession.setStartDate(LocalDateTime.now());
+
+
+        appointment.setStatus(AppointmentStatus.ON_GOING);
+        appointment.setEndDate(LocalDateTime.now().plusMinutes(duration));
+        Appointment savedAppointment =  appointmentRepository.save(appointment);
+
+        // save the appointment session:
+        appointmentSessionRepository.save(appointmentSession);
+
+        // save the appointment:
+        appointmentRepository.save(appointment);
+
+        return new AppointmentSessionDto(
+                savedAppointment
+        );
+    }
+
+    @Override
+    public AppointmentSessionDto completeSession(Integer appointmentId) {
+        // Fetch the appointment from db:
+
+        Appointment appointment =
+                appointmentRepository.findById(appointmentId)
+                        .orElseThrow();
+
+        // Throw runtime exception if the appointment is already completed
+        if(appointment.getStatus().equals(AppointmentStatus.COMPLETED)){
+            throw new AppointmentAlreadyCompletedException();
+        }
+
+        // Throw runtime exception if the appointment is already canceled
+        if(appointment.getStatus().equals(AppointmentStatus.CANCELED)){
+            throw new AppointmentAlreadyCanceled();
+        }
+
+        // Otherwise
+        // update the appointment:
+        appointment.setEndDate(LocalDateTime.now());
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+        return new AppointmentSessionDto(
+                savedAppointment
+        );
+    }
+}

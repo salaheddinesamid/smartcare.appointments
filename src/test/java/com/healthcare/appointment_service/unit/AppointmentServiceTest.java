@@ -3,7 +3,6 @@ package com.healthcare.appointment_service.unit;
 import com.healthcare.appointment_service.dto.AppointmentRequestDTO;
 import com.healthcare.appointment_service.dto.NewAppointmentResponseDTO;
 import com.healthcare.appointment_service.repository.AppointmentRepository;
-import com.healthcare.appointment_service.service.implementation.AppointmentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
