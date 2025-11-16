@@ -25,13 +25,11 @@ public class StaffServiceImpl implements StaffService {
     private String STAFF_MANAGEMENT_URI;
 
     private final AppointmentRepository appointmentRepository;
-    private final PatientServiceClientImpl patientServiceClient;
     private final RestTemplate restTemplate;
 
     @Autowired
-    public StaffServiceImpl(AppointmentRepository appointmentRepository, PatientServiceClientImpl patientServiceClient, RestTemplate restTemplate) {
+    public StaffServiceImpl(AppointmentRepository appointmentRepository, RestTemplate restTemplate) {
         this.appointmentRepository = appointmentRepository;
-        this.patientServiceClient = patientServiceClient;
         this.restTemplate = restTemplate;
     }
 

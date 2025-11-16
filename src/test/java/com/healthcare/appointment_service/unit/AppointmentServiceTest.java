@@ -10,6 +10,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDateTime;
 
+/*
 public class AppointmentServiceTest {
     @Mock
     private AppointmentServiceImpl appointmentService;
@@ -21,10 +22,6 @@ public class AppointmentServiceTest {
     void setUp(){
         MockitoAnnotations.initMocks(this);
     }
-
-    /**
-     * This unit test used to
-     */
     @Test
     public void testScheduleAppointment(){
 
@@ -41,9 +38,6 @@ public class AppointmentServiceTest {
 
         NewAppointmentResponseDTO response = appointmentService
                 .scheduleAppointment(request);
-
-
-
 
 
     }

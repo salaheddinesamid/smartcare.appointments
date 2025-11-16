@@ -67,4 +67,9 @@ public class AppointmentQueryServiceImpl implements AppointmentQueryService {
                             );
                         }).toList();
     }
+
+    @Override
+    public List<AppointmentResponseDto> getAllDoctorAppointments(Integer doctorId) {
+        return List.of();
+    }
 }
