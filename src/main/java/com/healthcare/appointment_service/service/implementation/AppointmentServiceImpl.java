@@ -115,7 +115,7 @@ public class AppointmentServiceImpl implements AppointmentService {
      * This method is used to automatically generate appointment invoice and save it to billing-service
      * @return
      */
-    private ResponseEntity<?> generateInvoice(){
+    private ResponseEntity<?> generateInvoice(Long appointmentId){
         return ResponseEntity.status(200).body("");
     }
 
