@@ -3,7 +3,6 @@ package com.healthcare.appointment_service.service.implementation;
 import com.healthcare.appointment_service.dto.AppointmentResponseDto;
 import com.healthcare.appointment_service.dto.DoctorDto;
 import com.healthcare.appointment_service.dto.PatientDto;
-import com.healthcare.appointment_service.exception.AppointmentNotFoundException;
 import com.healthcare.appointment_service.model.Appointment;
 import com.healthcare.appointment_service.repository.AppointmentRepository;
 import com.healthcare.appointment_service.service.AppointmentQueryService;
