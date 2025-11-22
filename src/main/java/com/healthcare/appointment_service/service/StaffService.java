@@ -1,10 +1,7 @@
 package com.healthcare.appointment_service.service;
 
-import com.healthcare.appointment_service.dto.AppointmentResponseDto;
 import com.healthcare.appointment_service.dto.DoctorDto;
-import com.healthcare.appointment_service.model.Appointment;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 

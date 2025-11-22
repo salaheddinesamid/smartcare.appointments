@@ -1,5 +1,6 @@
 package com.healthcare.appointment_service.service.implementation;
 
+import com.healthcare.appointment_service.dto.AppointmentCreatedEvent;
 import com.healthcare.appointment_service.dto.AppointmentRequestDTO;
 import com.healthcare.appointment_service.dto.NewAppointmentResponseDTO;
 import com.healthcare.appointment_service.exception.AppointmentCannotBeScheduledException;
@@ -11,6 +12,7 @@ import com.healthcare.appointment_service.repository.AppointmentRepository;
 import com.healthcare.appointment_service.service.AppointmentScheduleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,12 +22,14 @@ public class AppointmentScheduleServiceImpl implements AppointmentScheduleServic
     private final AppointmentRepository appointmentRepository;
     private final StaffServiceImpl staffService;
     private final PatientServiceClientImpl patientServiceClient;
+    private final KafkaTemplate kafkaTemplate;
 
     @Autowired
-    public AppointmentScheduleServiceImpl(AppointmentRepository appointmentRepository, StaffServiceImpl staffService, PatientServiceClientImpl patientServiceClient) {
+    public AppointmentScheduleServiceImpl(AppointmentRepository appointmentRepository, StaffServiceImpl staffService, PatientServiceClientImpl patientServiceClient, KafkaTemplate kafkaTemplate) {
         this.appointmentRepository = appointmentRepository;
         this.staffService = staffService;
         this.patientServiceClient = patientServiceClient;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override
@@ -57,6 +61,14 @@ public class AppointmentScheduleServiceImpl implements AppointmentScheduleServic
 
         Appointment savedAppointment =  appointmentRepository.save(appointment);
 
+        // create event, and send it to Kafka consumer (Invoice Service):
+        AppointmentCreatedEvent event = new AppointmentCreatedEvent(
+                savedAppointment
+        );
+        // send event to Kafka topic in case of new appointment scheduled
+        kafkaTemplate.send("appointment-created",event);
+
+        // return response:
         return new NewAppointmentResponseDTO(savedAppointment);
     }
 }
