@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.CompletableFuture;
+
 @Service
 @Slf4j
 public class AppointmentScheduleServiceImpl implements AppointmentScheduleService {
@@ -66,7 +68,9 @@ public class AppointmentScheduleServiceImpl implements AppointmentScheduleServic
                 savedAppointment
         );
         // send event to Kafka topic in case of new appointment scheduled
-        kafkaTemplate.send("appointment-created",event);
+        CompletableFuture.runAsync(()->{
+            kafkaTemplate.send("appointment-topic",event);
+        });
 
         // return response:
         return new NewAppointmentResponseDTO(savedAppointment);

@@ -2,21 +2,37 @@ package com.healthcare.appointment_service.unit;
 
 import com.healthcare.appointment_service.dto.AppointmentRequestDTO;
 import com.healthcare.appointment_service.dto.NewAppointmentResponseDTO;
+import com.healthcare.appointment_service.model.Appointment;
 import com.healthcare.appointment_service.repository.AppointmentRepository;
+import com.healthcare.appointment_service.service.AppointmentScheduleService;
+import com.healthcare.appointment_service.service.implementation.AppointmentRescheduleServiceImpl;
+import com.healthcare.appointment_service.service.implementation.AppointmentScheduleServiceImpl;
+import com.healthcare.appointment_service.service.implementation.AppointmentStarterServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDateTime;
 
-/*
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 public class AppointmentServiceTest {
-    @Mock
-    private AppointmentServiceImpl appointmentService;
 
     @Mock
     private AppointmentRepository appointmentRepository;
+
+    @InjectMocks
+    private AppointmentScheduleServiceImpl appointmentScheduleService;
+
+    @InjectMocks
+    private AppointmentStarterServiceImpl appointmentStarterService;
+
+    @InjectMocks
+    private AppointmentRescheduleServiceImpl appointmentRescheduleService;
 
     @BeforeEach
     void setUp(){
@@ -36,8 +52,10 @@ public class AppointmentServiceTest {
                 null
         );
 
-        NewAppointmentResponseDTO response = appointmentService
-                .scheduleAppointment(request);
+        // Act:
+        appointmentScheduleService.scheduleAppointment(request);
+        // Verify:
+        verify(appointmentRepository, times(1)).save(any());
 
 
     }

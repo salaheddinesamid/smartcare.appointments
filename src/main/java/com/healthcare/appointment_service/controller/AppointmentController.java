@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/appointment")
+@RequestMapping("/api/v1/appointment-management")
 public class AppointmentController {
 
     private final AppointmentScheduleServiceImpl appointmentScheduleService;
