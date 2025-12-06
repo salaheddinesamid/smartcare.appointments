@@ -3,9 +3,8 @@ package com.healthcare.appointment_service.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.cglib.core.Local;
-
 import java.time.LocalDateTime;
+
 
 @Entity
 @Getter
@@ -23,8 +22,11 @@ public class AppointmentSession {
     @Column(name = "duration")
     private long duration;
 
-    @Column(name = "start_date")
-    private LocalDateTime startDate;
+    @Column(name = "start_time")
+    private LocalDateTime startTime;
+
+    @Column(name = "end_time")
+    private LocalDateTime endTime;
 
     @Column(name = "time_left")
     private long timeLeft;

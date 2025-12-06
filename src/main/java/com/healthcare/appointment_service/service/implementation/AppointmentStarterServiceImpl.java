@@ -21,16 +21,17 @@ public class AppointmentStarterServiceImpl implements AppointmentSessionStarterS
 
     private final AppointmentRepository appointmentRepository;
     private final AppointmentSessionRepository appointmentSessionRepository;
+    private final SessionSchedulerServiceImpl sessionSchedulerService;
 
     @Autowired
-    public AppointmentStarterServiceImpl(AppointmentRepository appointmentRepository, AppointmentSessionRepository appointmentSessionRepository) {
+    public AppointmentStarterServiceImpl(AppointmentRepository appointmentRepository, AppointmentSessionRepository appointmentSessionRepository, SessionSchedulerServiceImpl sessionSchedulerService) {
         this.appointmentRepository = appointmentRepository;
         this.appointmentSessionRepository = appointmentSessionRepository;
+        this.sessionSchedulerService = sessionSchedulerService;
     }
 
     @Override
     public AppointmentSessionDto startSession(Integer appointmentId) {
-        long duration = 60;
         Appointment appointment =
                 appointmentRepository.findById(appointmentId).orElseThrow();
 
@@ -55,11 +56,12 @@ public class AppointmentStarterServiceImpl implements AppointmentSessionStarterS
         appointmentSession.setAppointment(appointment);
         appointmentSession.setDuration(appointment.getDuration());
         appointmentSession.setTimeLeft(appointment.getDuration());
-        appointmentSession.setStartDate(LocalDateTime.now());
+        appointmentSession.setStartTime(LocalDateTime.now()); // set the start time:
+        appointmentSession.setEndTime(LocalDateTime.now().plusMinutes(60)); // set the end time to a default 1 hours
 
 
         appointment.setStatus(AppointmentStatus.ON_GOING);
-        appointment.setEndDate(LocalDateTime.now().plusMinutes(duration));
+        appointment.setEndDate(appointmentSession.getEndTime());
         Appointment savedAppointment =  appointmentRepository.save(appointment);
 
         // save the appointment session:
@@ -67,6 +69,9 @@ public class AppointmentStarterServiceImpl implements AppointmentSessionStarterS
 
         // save the appointment:
         appointmentRepository.save(appointment);
+
+        // keep tracking the appointment session:
+        sessionSchedulerService.scheduleSessionCheck(appointmentSession);
 
         return new AppointmentSessionDto(
                 savedAppointment
