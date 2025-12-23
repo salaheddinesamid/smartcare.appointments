@@ -46,6 +46,7 @@ public class SessionSchedulerServiceImpl implements SessionSchedulerService {
 
             // send time update using web socket:
             webSocketService.sendTimeUpdate(session.getSessionId(), secondsLeft);
+            session.setTimeLeft(secondsLeft);
 
             // if the time is over set the session to completed and end session
             if(secondsLeft <= 0){
