@@ -38,15 +38,17 @@ public class AppointmentSessionTrackerUnitTest {
     void setUp(){
         MockitoAnnotations.openMocks(this);
         // Mock the appointment
+        appointment = new Appointment();
         appointment.setAppointmentId(1);
         appointment.setPatientId(2);
         appointment.setStartDate(LocalDateTime.now());
         appointment.setEndDate(LocalDateTime.now().plusMinutes(60));
 
         // Mock the session
+        appointmentSession = new AppointmentSession();
         appointmentSession.setAppointment(appointment);
         appointmentSession.setStatus(AppointmentSessionStatus.ONGOING);
-        appointmentSession.setTimeLeft();
+        appointmentSession.setTimeLeft(0);
     }
 
     @Test

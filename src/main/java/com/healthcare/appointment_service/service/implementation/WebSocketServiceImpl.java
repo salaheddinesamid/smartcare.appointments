@@ -7,13 +7,11 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-
 @Service
 public class WebSocketServiceImpl implements WebSocketService {
 
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
-
 
     @Override
     public void sendTimeUpdate(Long sessionId, long timeLeft) {
