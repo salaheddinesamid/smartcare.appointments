@@ -21,6 +21,13 @@ public class Appointment {
     @Column(name = "doctor_id")
     private Integer doctorId;
 
+    @Column(name = "disease")
+    @Enumerated(EnumType.STRING)
+    private Disease disease;
+
+    @Column(name = "duration", nullable = true)
+    private long duration;
+
     @Column(name = "start_date_time")
     private LocalDateTime startDate;
 
@@ -30,6 +37,10 @@ public class Appointment {
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private AppointmentType appointmentType;
+
+    @OneToOne
+    @JoinColumn(name = "precsription_id")
+    private Prescription prescription;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
