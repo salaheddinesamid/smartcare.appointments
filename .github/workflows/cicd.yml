@@ -65,9 +65,14 @@ jobs:
 
       - name: Build & Push Docker Image
         run: |
-          FULL_IMAGE_NAME=${{ vars.ACR_LOGIN_SERVER }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
-          docker build -t $FULL_IMAGE_NAME .
-          docker push $FULL_IMAGE_NAME
+          set -euo pipefail
+
+          FULL_IMAGE_NAME="${{ vars.ACR_LOGIN_SERVER }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}"
+          echo "Building and pushing image: $FULL_IMAGE_NAME"
+
+          docker build -t "$FULL_IMAGE_NAME" .
+          docker push "$FULL_IMAGE_NAME"
+  
 
   deploy-to-staging:
     runs-on: ubuntu-latest
