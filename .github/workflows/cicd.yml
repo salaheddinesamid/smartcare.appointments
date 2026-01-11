@@ -13,6 +13,9 @@ on:
     branches: [ "develop", "master", "release" ]
   pull_request:
     branches: [ "develop" ]
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   build-and-test:
