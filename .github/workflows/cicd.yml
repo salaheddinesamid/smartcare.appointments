@@ -30,9 +30,6 @@ jobs:
     - name: Build with Maven
       run: mvn clean package
 
-    - name: Test with Maven
-      run: mvn clean test
-
     - name:  Upload JAR Artifact
       uses: actions/upload-artifact@v4
       with:
