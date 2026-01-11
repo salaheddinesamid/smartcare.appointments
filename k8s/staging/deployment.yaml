@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appointment-service-deployment-staging
+  labels:
+    app: appointment-service-deployment-staging
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: appointment-service-deployment-staging
+  template:
+    metadata:
+      name: appointment-service-deployment-staging
+      labels:
+        app: appointment-service-deployment-staging
+    spec:
+      containers:
+        - name: appointment-service-deployment-staging
+          env:
+            - name: ENV_PROFILE
+              value: staging
+          image: smartcareacr.azure.io/appointment-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 7070
+              protocol: TCP
+      restartPolicy: Always
+      

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appointment-service-deployment-production
+  labels:
+    app: appointment-service-deployment-production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: appointment-service-deployment-production
+  template:
+    metadata:
+      name: appointment-service-deployment-production
+      labels:
+        app: appointment-service-deployment-production
+    spec:
+      containers:
+        - name: appointment-service-deployment-production
+          env:
+            - name: ENV_PROFILE
+              value: prod
+          image: smartcareacr.azure.io/appointment-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 7070
+              protocol: TCP
+      restartPolicy: Always
+      
