@@ -67,7 +67,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "Building and pushing image
+          echo "Building and pushing image"
           docker build -t ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.IMAGE_NAME }}:${{ github.sha }} .
           docker push ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
 
