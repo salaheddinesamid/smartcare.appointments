@@ -64,9 +64,10 @@ jobs:
         run:  az acr login --name ${{ vars.ACR_NAME }}
 
       - name: Build & Push Docker Image
-        run:
-          docker build -t ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.IMAGE_NAME }}:${{ github.sha }} .
-          docker push ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
+        run: |
+          FULL_IMAGE_NAME=${{ vars.ACR_LOGIN_SERVER }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
+          docker build -t $FULL_IMAGE_NAME .
+          docker push $FULL_IMAGE_NAME
 
   deploy-to-staging:
     runs-on: ubuntu-latest
