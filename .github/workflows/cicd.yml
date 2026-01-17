@@ -128,8 +128,8 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Set AKS Context
-        uses: azure/aks-set-context
-        with:
-          resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
-          cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
+      #- name: Set AKS Context
+        #uses: azure/aks-set-context
+        #with:
+          #resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
+          #cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
