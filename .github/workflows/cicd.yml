@@ -10,101 +10,126 @@ name: CI CD Pipeline for Appointment Service
 
 on:
   push:
-    branches: [ "develop", "master", "release" ]
+    branches: [ develop, release, main ]
   pull_request:
-    branches: [ "develop" ]
+    branches: [ main ]
+  workflow_dispatch:
+# Defined Permissions (read and write)
 permissions:
   id-token: write
   contents: read
+env:
+  ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}
+  IMAGE_NAME: ${{ vars.IMAGE_NAME }}
 
 jobs:
-  build-and-test:
-
+  # Job 1: Build and Test the Java source code using Maven
+  build-test:
     runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
-    - name: Build with Maven
-      run: mvn clean package
-
-    - name:  Upload JAR Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: appointment-service-jar
-        path: target/*.jar
-
-  build-image:
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    environment: staging
-    if: contains(fromJSON('["refs/heads/develop", "refs/heads/release", "refs/heads/main"]'), github.ref)
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download JAR Artifact
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+      # Build and test with Maven
+      - name: Build & Test with Maven
+        run: mvn clean package
+      # Static code Analysis using SonarCloud
+      - name: SonarCloud Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn sonar:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hospital-jar
+          path: target/*.jar
+  # Job 2: Build and Push Docker Image
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: build-test
+    environment: staging
+    if: github.event_name =='push'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download JAR artifact
         uses: actions/download-artifact@v4
         with:
-          name: appointment-service-jar
+          name: hospital-jar
           path: target
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Login to ACR
+        run: az acr login --name ${{ vars.ACR_LOGIN_SERVER }}
+
+      - name: Build Docker Image
+        run: docker build -t ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
+      # Scan the built Docker image against vulnerabilities
+      - name: Scan Image for vulnerabilities (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ vars.ACR_LOGIN_SERVER }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Push Image to ACR
+        run: docker push ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
+
+  # Job 3: Deploy to staging environment
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: docker-build
+    if: github.ref == 'refs/heads/release'
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Azure Login
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Login to ACR
-        run:  az acr login --name ${{ vars.ACR_NAME }}
+      - uses: hashicorp/setup-terraform@v3
 
-      - name: Build & Push Docker Image
+      - name: Terraform Apply (STAGING)
         run: |
-          FULL_IMAGE_NAME=${{ vars.ACR_LOGIN_SERVER }}/${{ vars.IMAGE_NAME }}:${{ github.sha }}
-          docker build -t $FULL_IMAGE_NAME .
-          docker push $FULL_IMAGE_NAME
+          cd infra/envs/staging
+          terraform init
+          terraform apply -auto-approve -var="image_tag=${{ github.sha }}"
 
-  deploy-to-staging:
+  # Job 4: Deploy to production environment with Manual Approval Gate
+  deploy-prod:
     runs-on: ubuntu-latest
-    needs: build-image
-    environment: staging
-    if: github.ref == 'refs/heads/release'
+    needs: docker-build # Changed from deploy-staging to allow direct fixes to main if needed
+    if: github.ref == 'refs/heads/main'
+    environment: production # Triggers manual approval if configured in GitHub
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Azure Login
-        uses: azure/login@v4
+        uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       - name: Set AKS Context
-        uses: azure/aks-set-context@v3
+        uses: azure/aks-set-context
         with:
           resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
           cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
-  # Manual Approval for Deploying to production
-  deploy-to-production:
-    runs-on: ubuntu-latest
-    needs: deploy-to-staging
-    environment: production
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Azure Login
-        uses: azure/login@v4
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - name: Set AKS Context
-        uses: azure/aks-set-context@v4
-        with:
-          resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
-          cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
-
-
